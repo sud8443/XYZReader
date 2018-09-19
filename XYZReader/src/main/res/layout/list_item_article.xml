@@ -18,7 +18,8 @@
         <!--suppress AndroidLintContentDescription -->
         <com.example.xyzreader.ui.DynamicHeightNetworkImageView
             android:id="@+id/thumbnail"
-            android:layout_width="100dp"
+            android:layout_width="match_parent"
+            android:scaleType="centerCrop"
             android:layout_height="100dp"
             android:background="@color/photo_placeholder" />
 
@@ -31,8 +32,9 @@
             android:paddingTop="16dp"
             android:paddingRight="16dp"
             android:paddingBottom="4dp"
-            android:textColor="@color/ltgray"
+            android:textColor="@color/brown_900"
             android:ellipsize="end"
+            android:minLines="2"
             android:maxLines="4" />
 
         <TextView
@@ -43,8 +45,9 @@
             android:paddingLeft="16dp"
             android:paddingRight="16dp"
             android:paddingBottom="16dp"
-            android:textColor="#6000"
+            android:textColor="@color/brown_600"
             android:maxLines="2"
+            android:minLines="2"
             android:ellipsize="end" />
     </LinearLayout>
 
