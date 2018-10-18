@@ -13,13 +13,20 @@ import android.graphics.drawable.ColorDrawable;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
+import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.RequiresApi;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ShareCompat;
 import android.support.v7.graphics.Palette;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.text.Html;
+import android.text.Spanned;
 import android.text.format.DateUtils;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
@@ -32,6 +39,7 @@ import android.widget.TextView;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
 import com.example.xyzreader.R;
+import com.example.xyzreader.adapter.ArticleBodyTextRecyclerViewAdapter;
 import com.example.xyzreader.data.ArticleLoader;
 
 /**
@@ -40,7 +48,7 @@ import com.example.xyzreader.data.ArticleLoader;
  * tablets) or a {@link ArticleDetailActivity} on handsets.
  */
 public class ArticleDetailFragment extends Fragment implements
-        LoaderManager.LoaderCallbacks<Cursor> {
+        LoaderManager.LoaderCallbacks<Cursor>, View.OnClickListener {
     private static final String TAG = "ArticleDetailFragment";
 
     public static final String ARG_ITEM_ID = "item_id";
@@ -60,6 +68,10 @@ public class ArticleDetailFragment extends Fragment implements
     TextView titleView;
     TextView bylineView;
     TextView bodyView;
+    private FloatingActionButton swipeToTop, share;
+    RecyclerView textContentRecyclerView;
+    ArticleBodyTextRecyclerViewAdapter adapter;
+    ArrayList<Spanned> articleContent;
 
     private int mScrollY;
     private boolean mIsCard = false;
@@ -145,23 +157,43 @@ public class ArticleDetailFragment extends Fragment implements
         titleView = (TextView) mRootView.findViewById(R.id.article_title);
         bylineView = (TextView) mRootView.findViewById(R.id.article_byline);
         bylineView.setMovementMethod(new LinkMovementMethod());
-        bodyView = (TextView) mRootView.findViewById(R.id.article_body);
+//        bodyView = (TextView) mRootView.findViewById(R.id.article_body);
+        swipeToTop = (FloatingActionButton) mRootView.findViewById(R.id.fab_swipe_to_top);
+        share = (FloatingActionButton) mRootView.findViewById(R.id.share_fab);
+        setUpRecyclerView(mRootView);
 
         mStatusBarColorDrawable = new ColorDrawable(0);
 
-        mRootView.findViewById(R.id.share_fab).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                startActivity(Intent.createChooser(ShareCompat.IntentBuilder.from(getActivity())
-                        .setType("text/plain")
-                        .setText("Some sample text")
-                        .getIntent(), getString(R.string.action_share)));
-            }
-        });
+        swipeToTop.setOnClickListener(this);
+        share.setOnClickListener(this);
 
         bindViews();
         updateStatusBar();
         return mRootView;
+    }
+
+    private void setUpRecyclerView(View mRootView) {
+        textContentRecyclerView = (RecyclerView) mRootView.findViewById(R.id.recycler_view_article_body);
+        articleContent = new ArrayList<>();
+        adapter = new ArticleBodyTextRecyclerViewAdapter(getActivity(), articleContent);
+
+        textContentRecyclerView.setAdapter(adapter);
+
+        textContentRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity(),
+                LinearLayoutManager.VERTICAL, false));
+
+        textContentRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                LinearLayoutManager linearLayoutManager = (LinearLayoutManager)
+                        recyclerView.getLayoutManager();
+                if (linearLayoutManager.findFirstCompletelyVisibleItemPosition() != 0)
+                    swipeToTop.setVisibility(View.VISIBLE);
+                else
+                    swipeToTop.setVisibility(View.INVISIBLE);
+            }
+        });
     }
 
     private void updateStatusBar() {
@@ -211,6 +243,9 @@ public class ArticleDetailFragment extends Fragment implements
 
 //        bodyView.setTypeface(Typeface.createFromAsset(getResources().getAssets(), "Rosario-Regular.ttf"));
 
+        // Clearing thr content ArrayList before adding any other view to it
+        articleContent.clear();
+
         if (mCursor != null) {
             mRootView.setAlpha(0);
             mRootView.setVisibility(View.VISIBLE);
@@ -235,7 +270,12 @@ public class ArticleDetailFragment extends Fragment implements
                                 + "</font>"));
 
             }
-            bodyView.setText(Html.fromHtml(mCursor.getString(ArticleLoader.Query.BODY).replaceAll("(\r\n|\n)", "<br />")));
+            String text = mCursor.getString(ArticleLoader.Query.BODY).replaceAll("(\r\n|\n)", "<br />");
+            String[] textContents = text.split("<br />");
+            for (String s: textContents) {
+                articleContent.add(Html.fromHtml(s));
+            }
+//            bodyView.setText(Html.fromHtml());
             ImageLoaderHelper.getInstance(getActivity()).getImageLoader()
                     .get(mCursor.getString(ArticleLoader.Query.PHOTO_URL), new ImageLoader.ImageListener() {
                         @Override
@@ -260,7 +300,8 @@ public class ArticleDetailFragment extends Fragment implements
             mRootView.setVisibility(View.GONE);
             titleView.setText("N/A");
             bylineView.setText("N/A" );
-            bodyView.setText("N/A");
+            articleContent.add(Html.fromHtml("N/A"));
+//            bodyView.setText("N/A");
         }
     }
 
@@ -303,5 +344,32 @@ public class ArticleDetailFragment extends Fragment implements
         return mIsCard
                 ? (int) mPhotoContainerView.getTranslationY() + mPhotoView.getHeight() - mScrollY
                 : mPhotoView.getHeight() - mScrollY;
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()){
+            case R.id.share_fab:
+                startActivity(Intent.createChooser(ShareCompat.IntentBuilder.from(getActivity())
+                        .setType("text/plain")
+                        .setText("Hey, I am reading this book: " + String.valueOf(titleView.getText()))
+                        .getIntent(), getString(R.string.action_share)));
+                break;
+            case R.id.fab_swipe_to_top:
+                int[] posCoordinates = new int[2];
+                textContentRecyclerView.getLocationOnScreen(posCoordinates);
+                Log.d("TAG", "X:" + posCoordinates[0] + ", Y: " + posCoordinates[1]);
+                // Not Working
+//                mScrollView.post(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        mScrollView.fullScroll(mScrollView.FOCUS_UP);
+//                    }
+//                });
+//                textContentRecyclerView.scrollTo(posCoordinates[0], posCoordinates[1]);
+                textContentRecyclerView.getLayoutManager().smoothScrollToPosition(textContentRecyclerView,
+                        null, 0); // Scroll to first position.
+                break;
+        }
     }
 }
