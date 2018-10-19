@@ -17,4 +17,8 @@
 
     <string name="author">Author:</string>
 
+    <string name="internet_connection_restored_message">You are online</string>
+
+    <string name="internet_connection_lost_message">No internet available</string>
+
 </resources>

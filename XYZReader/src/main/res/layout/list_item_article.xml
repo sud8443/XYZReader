@@ -58,14 +58,14 @@
             android:padding="8dp"
             android:layout_alignBottom="@id/fl_image_container"
             android:layout_alignStart="@id/fl_image_container">
-            <TextView
-                android:id="@+id/article_subtitle_book_date_label"
-                style="@style/ArticleSubTitleStyle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="start"
-                android:textStyle="bold"
-                android:text="@string/date" />
+            <!--<TextView-->
+                <!--android:id="@+id/article_subtitle_book_date_label"-->
+                <!--style="@style/ArticleSubTitleStyle"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:gravity="start"-->
+                <!--android:textStyle="bold"-->
+                <!--android:text="@string/date" />-->
 
             <TextView
                 android:id="@+id/article_subtitle_book_date"
@@ -81,14 +81,14 @@
             android:padding="8dp"
             android:layout_alignBottom="@id/fl_image_container"
             android:layout_alignEnd="@id/fl_image_container">
-            <TextView
-                android:id="@+id/article_subtitle_author_label"
-                style="@style/ArticleSubTitleStyle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="start"
-                android:textStyle="bold"
-                android:text="@string/author" />
+            <!--<TextView-->
+                <!--android:id="@+id/article_subtitle_author_label"-->
+                <!--style="@style/ArticleSubTitleStyle"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:gravity="start"-->
+                <!--android:textStyle="bold"-->
+                <!--android:text="@string/author" />-->
 
             <TextView
                 android:id="@+id/article_subtitle_author_name"

@@ -8,6 +8,7 @@ import android.content.IntentFilter;
 import android.content.Loader;
 import android.content.res.Configuration;
 import android.database.Cursor;
+import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -24,7 +25,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.example.xyzreader.NetworkChangeReceiver;
 import com.example.xyzreader.R;
 import com.example.xyzreader.data.ArticleLoader;
 import com.example.xyzreader.data.ItemsContract;
@@ -49,7 +52,9 @@ public class ArticleListActivity extends AppCompatActivity implements
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private RecyclerView mRecyclerView;
     private static final String RECYCLER_VIEW_STATE_KEY = "RecyclerViewState";
-
+    private NetworkChangeReceiver networkChangeReceiver;
+    private IntentFilter connectivityChangeActionIntentFilter;
+    private static Toast internetConnectionToastMessage;
     private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.sss");
     // Use default locale format
     private SimpleDateFormat outputFormat = new SimpleDateFormat();
@@ -72,6 +77,32 @@ public class ArticleListActivity extends AppCompatActivity implements
         if (savedInstanceState == null) {
             refresh();
         }
+
+        setUpNetworkChangeReceiver();
+    }
+
+    private void setUpNetworkChangeReceiver() {
+        networkChangeReceiver = new NetworkChangeReceiver();
+
+        connectivityChangeActionIntentFilter = new IntentFilter();
+        connectivityChangeActionIntentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
+
+        networkChangeReceiver.setNetworkStateListener(new NetworkChangeReceiver.NetworkStateListener() {
+            @Override
+            public void networkStateConnected(boolean status) {
+
+               if (internetConnectionToastMessage == null) {
+                   internetConnectionToastMessage = Toast.makeText(ArticleListActivity.this,
+                           "Toast Initialized",Toast.LENGTH_LONG);
+               }
+               if (status) {
+                   internetConnectionToastMessage.setText(R.string.internet_connection_restored_message);
+               } else {
+                   internetConnectionToastMessage.setText(R.string.internet_connection_lost_message);
+               }
+               internetConnectionToastMessage.show();
+            }
+        });
     }
 
     private void refresh() {
@@ -81,6 +112,7 @@ public class ArticleListActivity extends AppCompatActivity implements
     @Override
     protected void onStart() {
         super.onStart();
+        registerReceiver(networkChangeReceiver, connectivityChangeActionIntentFilter);
         registerReceiver(mRefreshingReceiver,
                 new IntentFilter(UpdaterService.BROADCAST_ACTION_STATE_CHANGE));
     }
@@ -88,6 +120,7 @@ public class ArticleListActivity extends AppCompatActivity implements
     @Override
     protected void onStop() {
         super.onStop();
+        unregisterReceiver(networkChangeReceiver);
         unregisterReceiver(mRefreshingReceiver);
     }
 
