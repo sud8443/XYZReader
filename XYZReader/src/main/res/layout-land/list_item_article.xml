@@ -48,24 +48,55 @@
             android:minLines="2"
             android:maxLines="4"
             android:textSize="20sp"
-            android:layout_alignBottom="@id/fl_image_container"
+            android:layout_above="@id/rl_article_date_container"
             android:layout_alignStart="@id/fl_image_container"/>
 
-        <TextView
-            android:id="@+id/article_subtitle"
-            style="@style/TextAppearance.AppCompat.Body1"
+        <LinearLayout
+            android:id="@+id/rl_article_date_container"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingLeft="16dp"
-            android:paddingRight="16dp"
-            android:paddingBottom="16dp"
-            android:textColor="@android:color/white"
-            android:maxLines="2"
-            android:minLines="2"
-            android:ellipsize="end"
-            android:textSize="18sp"
+            android:orientation="vertical"
+            android:padding="8dp"
             android:layout_alignBottom="@id/fl_image_container"
-            android:layout_alignEnd="@id/fl_image_container"/>
+            android:layout_alignStart="@id/fl_image_container">
+            <TextView
+                android:id="@+id/article_subtitle_book_date_label"
+                style="@style/ArticleSubTitleStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="start"
+                android:textStyle="bold"
+                android:text="@string/date" />
+
+            <TextView
+                android:id="@+id/article_subtitle_book_date"
+                style="@style/ArticleSubTitleStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="8dp"
+            android:layout_alignBottom="@id/fl_image_container"
+            android:layout_alignEnd="@id/fl_image_container">
+            <TextView
+                android:id="@+id/article_subtitle_author_label"
+                style="@style/ArticleSubTitleStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="start"
+                android:textStyle="bold"
+                android:text="@string/author"/>
+
+            <TextView
+                android:id="@+id/article_subtitle_author_name"
+                style="@style/ArticleSubTitleStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+        </LinearLayout>
     </RelativeLayout>
 
 </android.support.v7.widget.CardView>
