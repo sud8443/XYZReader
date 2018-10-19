@@ -100,7 +100,7 @@ public class ArticleListActivity extends AppCompatActivity implements
                } else {
                    internetConnectionToastMessage.setText(R.string.internet_connection_lost_message);
                }
-               internetConnectionToastMessage.show();
+//               internetConnectionToastMessage.show();
             }
         });
     }
