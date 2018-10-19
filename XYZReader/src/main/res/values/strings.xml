@@ -9,4 +9,8 @@
 
     <string name="up">Up</string>
 
+    <string name="loading_book_content_text">Loading book content...</string>
+
+    <string name="image_view_loading_book_content">Image of book loading with animation</string>
+
 </resources>

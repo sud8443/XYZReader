@@ -8,7 +8,7 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Rect;
-import android.graphics.Typeface;
+import android.graphics.drawable.AnimatedVectorDrawable;
 import android.graphics.drawable.ColorDrawable;
 
 import java.text.ParseException;
@@ -17,12 +17,14 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.RequiresApi;
 import android.support.design.widget.FloatingActionButton;
+import android.support.graphics.drawable.AnimatedVectorDrawableCompat;
 import android.support.v4.app.ShareCompat;
 import android.support.v7.graphics.Palette;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
@@ -65,6 +67,8 @@ public class ArticleDetailFragment extends Fragment implements
     private int mTopInset;
     private View mPhotoContainerView;
     private ImageView mPhotoView;
+    private CardView loadingLayout;
+    private ImageView bookLoadingImageView;
     TextView titleView;
     TextView bylineView;
     TextView bodyView;
@@ -133,6 +137,8 @@ public class ArticleDetailFragment extends Fragment implements
         mRootView = inflater.inflate(R.layout.fragment_article_detail, container, false);
         mDrawInsetsFrameLayout = (DrawInsetsFrameLayout)
                 mRootView.findViewById(R.id.draw_insets_frame_layout);
+        loadingLayout = (CardView) mRootView.findViewById(R.id.card_view_loading_layout);
+        bookLoadingImageView = (ImageView) mRootView.findViewById(R.id.img_view_book_loading_anim);
         mDrawInsetsFrameLayout.setOnInsetsCallback(new DrawInsetsFrameLayout.OnInsetsCallback() {
             @Override
             public void onInsetsChanged(Rect insets) {
@@ -140,6 +146,10 @@ public class ArticleDetailFragment extends Fragment implements
             }
         });
 
+        // Initially setting the loading layout's visibility to INVISIBLE for the user to know
+        // about the loading
+        mDrawInsetsFrameLayout.setVisibility(View.INVISIBLE);
+        setUpLoadingLayout();
         mScrollView = (ObservableScrollView) mRootView.findViewById(R.id.scrollview);
         mScrollView.setCallbacks(new ObservableScrollView.Callbacks() {
             @Override
@@ -170,6 +180,19 @@ public class ArticleDetailFragment extends Fragment implements
         bindViews();
         updateStatusBar();
         return mRootView;
+    }
+
+    private void setUpLoadingLayout() {
+        loadingLayout.setVisibility(View.VISIBLE);
+
+        Drawable d = bookLoadingImageView.getDrawable();
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP && d instanceof AnimatedVectorDrawable) {
+            AnimatedVectorDrawable anim = (AnimatedVectorDrawable) d;
+            anim.start();
+        }else if (d instanceof AnimatedVectorDrawableCompat) {
+            AnimatedVectorDrawableCompat anim = (AnimatedVectorDrawableCompat) d;
+            anim.start();
+        }
     }
 
     private void setUpRecyclerView(View mRootView) {
@@ -247,9 +270,10 @@ public class ArticleDetailFragment extends Fragment implements
         articleContent.clear();
 
         if (mCursor != null) {
-            mRootView.setAlpha(0);
-            mRootView.setVisibility(View.VISIBLE);
-            mRootView.animate().alpha(1).setDuration(300);
+            mDrawInsetsFrameLayout.setAlpha(0);
+            mDrawInsetsFrameLayout.setVisibility(View.VISIBLE);
+            mDrawInsetsFrameLayout.animate().alpha(1).setDuration(300);
+            loadingLayout.setVisibility(View.GONE);
             titleView.setText(mCursor.getString(ArticleLoader.Query.TITLE));
             Date publishedDate = parsePublishedDate();
             if (!publishedDate.before(START_OF_EPOCH.getTime())) {
@@ -297,7 +321,7 @@ public class ArticleDetailFragment extends Fragment implements
                         }
                     });
         } else {
-            mRootView.setVisibility(View.GONE);
+            mDrawInsetsFrameLayout.setVisibility(View.GONE);
             titleView.setText("N/A");
             bylineView.setText("N/A" );
             articleContent.add(Html.fromHtml("N/A"));

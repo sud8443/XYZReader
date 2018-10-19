@@ -23,6 +23,16 @@
         <item name="colorAccent">@color/theme_accent</item>
     </style>
 
+    <style name="SubHeadingCustomStyle" parent="@style/TextAppearance.AppCompat.Subhead">
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="LoadingTextStyle" parent="@style/TextAppearance.AppCompat">
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:textSize">18sp</item>
+        <item name="android:fontFamily">sans-serif</item>
+    </style>
+
     <style name="Theme.Bacon.Detail" parent="ThemeOverlay.AppCompat.ActionBar">
         <item name="android:statusBarColor">@android:color/transparent</item>
     </style>
